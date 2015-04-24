@@ -139,6 +139,10 @@
         || options.errors[key]
     }
 
+    function getRemoteErrorMessage(status) {
+        return $el.data('remote-error-' + status.replace(/\s+/g, '').toLowerCase());
+    }
+
     $.each(Validator.VALIDATORS, $.proxy(function (key, validator) {
       if (($el.data(key) || key == 'native') && !validator.call(this, $el)) {
         var error = getErrorMessage(key)
@@ -151,7 +155,9 @@
         var data = {}
         data[$el.attr('name')] = $el.val()
         $.get($el.data('remote'), data)
-          .fail(function (jqXHR, textStatus, error) { errors.push(getErrorMessage('remote') || error) })
+          .fail(function (jqXHR, textStatus, error) {
+              errors.push(getRemoteErrorMessage(jqXHR.statusText) || getErrorMessage('remote') || error)
+          })
           .always(function () { deferred.resolve(errors)})
       })
     } else deferred.resolve(errors)
